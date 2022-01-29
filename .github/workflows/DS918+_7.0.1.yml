@@ -1,0 +1,29 @@
+name: 构建DSM引导镜像
+
+on: workflow_dispatch
+
+jobs:
+  redpill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 同步仓库
+        uses: actions/checkout@v2.1.0
+      - name: 安装环境
+        run: |
+          sudo apt-get update && sudo apt-get install --yes --no-install-recommends ca-certificates build-essential git libssl-dev curl cpio bspatch vim gettext bc bison flex dosfstools kmod jq
+      - name: 编译 redpill-load
+        run: |
+          # ./ext-manager.sh add https://github.com/jumkey/redpill-load/raw/develop/redpill-acpid/rpext-index.json
+          # ./ext-manager.sh add https://github.com/jumkey/redpill-load/raw/develop/redpill-virtio/rpext-index.json
+          # ./ext-manager.sh add https://github.com/jumkey/redpill-load/raw/develop/redpill-boot-wait/rpext-index.json
+          # ./ext-manager.sh add https://github.com/RedPill-TTG/redpill-boot-wait/raw/master/recipes/universal.json
+          # ./ext-manager.sh add https://github.com/RedPill-TTG/redpill-virtio/raw/master/recipes/ds918p_41890.json
+          # ./ext-manager.sh add https://raw.githubusercontent.com/pocopico/rp-ext/master/r8169/rpext-index.json
+          # ./ext-manager.sh add https://raw.githubusercontent.com/pocopico/rp-ext/master/r8169/releases/ds918p_42218.json
+          ./build-loader.sh 'DS918+' '7.0.1-42218'
+          cd images && ls
+      - name: 上传到Archive
+        uses: actions/upload-artifact@v2
+        with:
+          name: redpill-DS918P-7.0.1-loader
+          path: images/redpill-DS918+_7.0.1*.img
